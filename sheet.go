@@ -34,6 +34,7 @@ import (
 // name and returns the index of the sheets in the workbook after it appended.
 // Note that when creating a new workbook, the default worksheet named
 // `Sheet1` will be created.
+// 根据给定的工作表名称来创建新工作表，并返回工作表在工作簿中的索引。请注意，在创建新的工作簿时，将包含名为 Sheet1 的默认工作表。
 func (f *File) NewSheet(sheet string) (int, error) {
 	var err error
 	if err = checkSheetName(sheet); err != nil {
@@ -268,6 +269,7 @@ func replaceRelationshipsBytes(content []byte) []byte {
 // workbook by a given index. Note that the active index is different from the
 // ID returned by function GetSheetMap(). It should be greater than or equal to 0
 // and less than the total worksheet numbers.
+// 根据给定的索引值设置默认工作表，索引的值应该大于等于 0 且小于工作簿所包含的累积工作表总数。
 func (f *File) SetActiveSheet(index int) {
 	if index < 0 {
 		index = 0
@@ -315,6 +317,7 @@ func (f *File) SetActiveSheet(index int) {
 
 // GetActiveSheetIndex provides a function to get active sheet index of the
 // spreadsheet. If not found the active sheet will be return integer 0.
+// 获取默认工作表的索引，如果没有找到默认工作表将返回 0。
 func (f *File) GetActiveSheetIndex() (index int) {
 	sheetID := f.getActiveSheetID()
 	wb, _ := f.workbookReader()
@@ -352,6 +355,8 @@ func (f *File) getActiveSheetID() int {
 // this function only changes the name of the sheet and will not update the
 // sheet name in the formula or reference associated with the cell. So there
 // may be problem formula error or reference missing.
+// 根据给定的新旧工作表名称重命名工作表。工作表名称最多允许使用 31 个字符，此功能仅更改工作表的名称，而不会更新与单元格关联的公式或引用中的工作表名称。
+// 因此使用此功能重命名工作表后可能导致公式错误或参考引用问题。
 func (f *File) SetSheetName(source, target string) error {
 	var err error
 	if err = checkSheetName(source); err != nil {
@@ -377,6 +382,7 @@ func (f *File) SetSheetName(source, target string) error {
 // GetSheetName provides a function to get the sheet name of the workbook by
 // the given sheet index. If the given sheet index is invalid, it will return
 // an empty string.
+// 根据给定的工作表索引获取工作表名称，如果工作表不存在将返回空字符。
 func (f *File) GetSheetName(index int) (name string) {
 	for idx, sheet := range f.GetSheetList() {
 		if idx == index {
@@ -429,6 +435,8 @@ func (f *File) GetSheetIndex(sheet string) (int, error) {
 //	for index, name := range f.GetSheetMap() {
 //	    fmt.Println(index, name)
 //	}
+//
+// 获取工作簿中以 ID 和名称构成的全部工作表、图表工作表和对话工作表映射表。
 func (f *File) GetSheetMap() map[int]string {
 	wb, _ := f.workbookReader()
 	sheetMap := map[int]string{}
@@ -442,6 +450,7 @@ func (f *File) GetSheetMap() map[int]string {
 
 // GetSheetList provides a function to get worksheets, chart sheets, and
 // dialog sheets name list of the workbook.
+// 获取与工作簿内顺序相一致的，包含工作表、图表工作表、对话工作表在内的工作表列表。
 func (f *File) GetSheetList() (list []string) {
 	wb, _ := f.workbookReader()
 	if wb != nil {
@@ -502,6 +511,8 @@ func (f *File) getSheetXMLPath(sheet string) (string, bool) {
 // SetSheetBackground provides a function to set background picture by given
 // worksheet name and file path. Supported image types: BMP, EMF, EMZ, GIF,
 // JPEG, JPG, PNG, SVG, TIF, TIFF, WMF, and WMZ.
+// 根据给定的工作表名称和图片文件路径为指定的工作表设置平铺效果的背景图片。
+// 支持的图片文件格式为：BMP、EMF、EMZ、GIF、JPEG、JPG、PNG、SVG、TIF、TIFF、WMF 和 WMZ。
 func (f *File) SetSheetBackground(sheet, picture string) error {
 	var err error
 	// Check picture exists first.
@@ -515,6 +526,8 @@ func (f *File) SetSheetBackground(sheet, picture string) error {
 // SetSheetBackgroundFromBytes provides a function to set background picture by
 // given worksheet name, extension name and image data. Supported image types:
 // BMP, EMF, EMZ, GIF, JPEG, JPG, PNG, SVG, TIF, TIFF, WMF, and WMZ.
+// 根据给定的工作表名称、图片格式扩展名和图片格式数据为指定的工作表设置平铺效果的背景图片。
+// 支持的图片文件格式为：BMP、EMF、EMZ、GIF、JPEG、JPG、PNG、SVG、TIF、TIFF、WMF 和 WMZ。
 func (f *File) SetSheetBackgroundFromBytes(sheet, extension string, picture []byte) error {
 	if len(picture) == 0 {
 		return ErrParameterInvalid
@@ -545,6 +558,9 @@ func (f *File) setSheetBackground(sheet, extension string, file []byte) error {
 // references such as formulas, charts, and so on. If there is any referenced
 // value of the deleted worksheet, it will cause a file error when you open
 // it. This function will be invalid when only one worksheet is left.
+// 根据给定的工作表名称删除指定工作表，谨慎使用此方法，这将会影响到与被删除工作表相关联的公式、引用、图表等元素。
+// 如果有其他组件引用了被删除工作表上的值，将会引发错误提示，甚至将会导致打开工作簿失败。
+// 当工作簿中仅包含一个工作表时，调用此方法无效。
 func (f *File) DeleteSheet(sheet string) error {
 	if err := checkSheetName(sheet); err != nil {
 		return err
@@ -657,6 +673,9 @@ func (f *File) deleteSheetFromContentTypes(target string) error {
 //	    return
 //	}
 //	err := f.CopySheet(1, index)
+//
+// 根据给定的被复制工作表与目标工作表索引复制工作表，目标工作表索引需要开发者自行确认是否已经存在。
+// 目前支持仅包含单元格值和公式的工作表间的复制，不支持包含表格、图片、图表和透视表等元素的工作表之间的复制。
 func (f *File) CopySheet(from, to int) error {
 	if from < 0 || to < 0 || from == to || f.GetSheetName(from) == "" || f.GetSheetName(to) == "" {
 		return ErrSheetIdx
@@ -710,6 +729,9 @@ func getSheetState(visible bool, veryHidden []bool) string {
 // For example, hide Sheet1:
 //
 //	err := f.SetSheetVisible("Sheet1", false)
+//
+// 根据给定的工作表名称和可见性参数设置工作表的可见性。一个工作簿中至少包含一个可见工作表。
+// 如果给定的工作表为默认工作表，则对其可见性设置无效。第三个可选参数 veryHidden 仅在 visible 参数值为 false 时有效。
 func (f *File) SetSheetVisible(sheet string, visible bool, veryHidden ...bool) error {
 	if err := checkSheetName(sheet); err != nil {
 		return err
@@ -912,6 +934,8 @@ func (f *File) SetPanes(sheet string, panes *Panes) error {
 // name. For example, get visible state of Sheet1:
 //
 //	visible, err := f.GetSheetVisible("Sheet1")
+//
+// 根据给定的工作表名称获取工作表可见性设置。例如，获取名为 Sheet1 的工作表可见性设置
 func (f *File) GetSheetVisible(sheet string) (bool, error) {
 	var visible bool
 	if err := checkSheetName(sheet); err != nil {
@@ -942,6 +966,9 @@ func (f *File) GetSheetVisible(sheet string) (bool, error) {
 // of "0-9" of Sheet1 is described:
 //
 //	result, err := f.SearchSheet("Sheet1", "[0-9]", true)
+//
+// 根据给定的工作表名称，单元格值或正则表达式来获取坐标。
+// 此函数仅支持字符串和数字的完全匹配，不支持公式计算后的结果、格式化数字和条件搜索。如果搜索结果是合并的单元格，将返回合并区域左上角的坐标。
 func (f *File) SearchSheet(sheet, value string, reg ...bool) ([]string, error) {
 	var (
 		regSearch bool
@@ -1183,6 +1210,7 @@ func attrValToBool(name string, attrs []xml.Attr) (val bool, err error) {
 // that same page
 //
 // - No footer on the first page
+// 根据给定的工作表名称和控制字符设置工作表的页眉和页脚。
 func (f *File) SetHeaderFooter(sheet string, opts *HeaderFooterOptions) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1230,6 +1258,8 @@ func (f *File) SetHeaderFooter(sheet string, opts *HeaderFooterOptions) error {
 //	    SelectUnlockedCells: true,
 //	    EditScenarios:       true,
 //	})
+//
+// 防止其他用户意外或有意更改、移动或删除工作表中的数据。
 func (f *File) ProtectSheet(sheet string, opts *SheetProtectionOptions) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1277,6 +1307,7 @@ func (f *File) ProtectSheet(sheet string, opts *SheetProtectionOptions) error {
 // UnprotectSheet provides a function to remove protection for a sheet,
 // specified the second optional password parameter to remove sheet
 // protection with password verification.
+// 根据给定的工作表名称取消保护该工作表，指定第二个可选密码参数以通过密码验证来取消工作表保护。
 func (f *File) UnprotectSheet(sheet string, password ...string) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1448,6 +1479,9 @@ func checkSheetName(name string) error {
 //	   116 | PRC Envelope #8 Rotated (309 mm x 120 mm)
 //	   117 | PRC Envelope #9 Rotated (324 mm x 229 mm)
 //	   118 | PRC Envelope #10 Rotated (458 mm x 324 mm)
+//
+// 根据给定的工作表名称和页面布局参数设置工作表的页面布局属性。目前支持设置的页面布局属性：
+// Size 属性用以指定页面纸张大小，默认页面布局大小为“信纸 8½ × 11 英寸”。
 func (f *File) SetPageLayout(sheet string, opts *PageLayoutOptions) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1502,6 +1536,7 @@ func (ws *xlsxWorksheet) setPageSetUp(opts *PageLayoutOptions) {
 }
 
 // GetPageLayout provides a function to gets worksheet page layout.
+// 根据给定的工作表名称和页面布局参数获取工作表的页面布局属性。
 func (f *File) GetPageLayout(sheet string) (PageLayoutOptions, error) {
 	opts := PageLayoutOptions{
 		Size:            intPtr(0),
@@ -1547,6 +1582,8 @@ func (f *File) GetPageLayout(sheet string) (PageLayoutOptions, error) {
 //	    Comment:  "defined name comment",
 //	    Scope:    "Sheet2",
 //	})
+//
+// 根据给定的名称和引用区域设置名称，默认范围是工作簿
 func (f *File) SetDefinedName(definedName *DefinedName) error {
 	if definedName.Name == "" || definedName.RefersTo == "" {
 		return ErrParameterInvalid
@@ -1595,6 +1632,8 @@ func (f *File) SetDefinedName(definedName *DefinedName) error {
 //	    Name:     "Amount",
 //	    Scope:    "Sheet2",
 //	})
+//
+// 根据给定的名称和名称作用范围删除已定义的名称，默认名称的作用范围为工作簿。
 func (f *File) DeleteDefinedName(definedName *DefinedName) error {
 	wb, err := f.workbookReader()
 	if err != nil {
@@ -1621,6 +1660,7 @@ func (f *File) DeleteDefinedName(definedName *DefinedName) error {
 
 // GetDefinedName provides a function to get the defined names of the workbook
 // or worksheet.
+// 获取作用范围内的工作簿和工作表的名称列表。
 func (f *File) GetDefinedName() []DefinedName {
 	var definedNames []DefinedName
 	wb, _ := f.workbookReader()
@@ -1643,6 +1683,7 @@ func (f *File) GetDefinedName() []DefinedName {
 
 // GroupSheets provides a function to group worksheets by given worksheets
 // name. Group worksheets must contain an active worksheet.
+// 根据给定的工作表名称对工作表进行分组，给定的工作表中需包含默认工作表。
 func (f *File) GroupSheets(sheets []string) error {
 	// Check an active worksheet in group worksheets
 	var inActiveSheet bool
@@ -1680,6 +1721,7 @@ func (f *File) GroupSheets(sheets []string) error {
 }
 
 // UngroupSheets provides a function to ungroup worksheets.
+// 取消工作表分组。
 func (f *File) UngroupSheets() error {
 	activeSheet := f.GetActiveSheetIndex()
 	for index, sheet := range f.GetSheetList() {
@@ -1701,6 +1743,7 @@ func (f *File) UngroupSheets() error {
 // ends and where begins the next one by given worksheet name and cell
 // reference, so the content before the page break will be printed on one page
 // and after the page break on another.
+// 根据给定的工作表名称和单元格坐标插入分页符。分页符是将工作表分成单独的页面以便打印的分隔线。
 func (f *File) InsertPageBreak(sheet, cell string) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1766,6 +1809,7 @@ func (ws *xlsxWorksheet) insertPageBreak(cell string) error {
 
 // RemovePageBreak remove a page break by given worksheet name and cell
 // reference.
+// 根据给定的工作表名称和单元格坐标删除分页符。
 func (f *File) RemovePageBreak(sheet, cell string) error {
 	var (
 		ws       *xlsxWorksheet
@@ -1888,6 +1932,10 @@ func (ws *xlsxWorksheet) makeContiguousColumns(fromRow, toRow, colCount int) {
 // of used cells in the worksheet. The range reference is set using the A1
 // reference style(e.g., "A1:D5"). Passing an empty range reference will remove
 // the used range of the worksheet.
+// 根据给定的工作表名称和单元格坐标或单元格坐标区域设置或移除工作表的已用区域。使用的单元格包括具有公式、文本内容和单元格格式的单元格。
+// 设置已用区域后,Excel会认为工作表上只存在设置的单元格区域内的单元格是被使用的。设置已用区域可以:
+// 1. 减小工作表文件大小。因为Excel仅会保存已用区域内的单元格数据和格式。
+// 2. 提高工作表操作效率。因为Excel仅需要处理已用区域内的数据和单元格。
 func (f *File) SetSheetDimension(sheet string, rangeRef string) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1920,6 +1968,7 @@ func (f *File) SetSheetDimension(sheet string, rangeRef string) error {
 }
 
 // GetSheetDimension provides the method to get the used range of the worksheet.
+// 根据给定的工作表名称获取指定工作表的已用区域。
 func (f *File) GetSheetDimension(sheet string) (string, error) {
 	var ref string
 	ws, err := f.workSheetReader(sheet)

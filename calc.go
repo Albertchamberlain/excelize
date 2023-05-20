@@ -788,6 +788,8 @@ type formulaFuncs struct {
 //	YIELDMAT
 //	Z.TEST
 //	ZTEST
+//
+// 根据给定的工作表名和单元格坐标计算包含公式单元格的值。
 func (f *File) CalcCellValue(sheet, cell string, opts ...Options) (result string, err error) {
 	var (
 		rawCellValue = getOptions(opts...).RawCellValue

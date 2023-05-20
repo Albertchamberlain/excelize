@@ -28,11 +28,11 @@ import (
 
 // File define a populated spreadsheet file struct.
 type File struct {
-	mu               sync.Mutex
-	options          *Options
-	xmlAttr          map[string][]xml.Attr
-	checked          map[string]bool
-	sheetMap         map[string]string
+	mu               sync.Mutex            // Protects the spreadsheet
+	options          *Options              // Options define the options for o`pen and reading spreadsheet.
+	xmlAttr          map[string][]xml.Attr // Attributes for the spreadsheet file struct in the spreadsheet
+	checked          map[string]bool       // Whether the spreadsheet should check
+	sheetMap         map[string]string     // Map of the spreadsheet
 	streams          map[string]*StreamWriter
 	tempFiles        sync.Map
 	sharedStringsMap map[string]int
@@ -60,11 +60,8 @@ type File struct {
 // the spreadsheet from non-UTF-8 encoding.
 type charsetTranscoderFn func(charset string, input io.Reader) (rdr io.Reader, err error)
 
-// Options define the options for o`pen and reading spreadsheet.
 //
-// MaxCalcIterations specifies the maximum iterations for iterative
-// calculation, the default value is 0.
-//
+
 // Password specifies the password of the spreadsheet in plain text.
 //
 // RawCellValue specifies if apply the number format for the cell value or get
@@ -95,11 +92,11 @@ type charsetTranscoderFn func(charset string, input io.Reader) (rdr io.Reader, e
 // CultureInfo specifies the country code for applying built-in language number
 // format code these effect by the system's local language settings.
 type Options struct {
-	MaxCalcIterations uint
-	Password          string
-	RawCellValue      bool
-	UnzipSizeLimit    int64
-	UnzipXMLSizeLimit int64
+	MaxCalcIterations uint   // MaxCalcIterations指定迭代计算的最大迭代次数，默认值为0。
+	Password          string //以明文形式指定打开和保存工作簿时所使用的密码，默认值为空。
+	RawCellValue      bool   //用以指定读取单元格值时是否获取原始值，默认值为 false（应用数字格式）。
+	UnzipSizeLimit    int64  //用以指定打开电子表格文档时的解压缩大小限制（以字节为单位），该值应大于或等于 UnzipXMLSizeLimit，默认大小限制为 16GB。
+	UnzipXMLSizeLimit int64  //用以指定解压每个工作表以及共享字符表时的内存限制（以字节为单位），当大小超过此值时工作表 XML 文件将被解压至系统临时目录，该值应小于或等于 UnzipSizeLimit，默认大小限制为 16MB。
 	ShortDatePattern  string
 	LongDatePattern   string
 	LongTimePattern   string
@@ -171,6 +168,7 @@ func (f *File) checkOpenReaderOptions() error {
 
 // OpenReader read data stream from io.Reader and return a populated
 // spreadsheet file.
+// OpenReader 从 io.Reader 读取数据流。
 func OpenReader(r io.Reader, opts ...Options) (*File, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {
@@ -226,7 +224,11 @@ func getOptions(opts ...Options) *Options {
 
 // CharsetTranscoder Set user defined codepage transcoder function for open
 // XLSX from non UTF-8 encoding.
-func (f *File) CharsetTranscoder(fn charsetTranscoderFn) *File { f.CharsetReader = fn; return f }
+// 设置用户定义的编码转码器功能，用于打开从非UTF-8编码的XLSX。
+func (f *File) CharsetTranscoder(fn charsetTranscoderFn) *File {
+	f.CharsetReader = fn
+	return f
+}
 
 // Creates new XML decoder with charset reader.
 func (f *File) xmlNewDecoder(rdr io.Reader) (ret *xml.Decoder) {

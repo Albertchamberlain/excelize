@@ -62,6 +62,9 @@ type Cols struct {
 //	    }
 //	    fmt.Println()
 //	}
+//
+// 根据给定的工作表名按列获取该工作表上全部单元格的值，以二维数组形式返回，其中单元格的值将转换为 string 类型。
+// 如果可以将单元格格式应用于单元格的值，将使用应用后的值，否则将使用原始值。
 func (f *File) GetCols(sheet string, opts ...Options) ([][]string, error) {
 	cols, err := f.Cols(sheet)
 	if err != nil {
@@ -76,17 +79,20 @@ func (f *File) GetCols(sheet string, opts ...Options) ([][]string, error) {
 }
 
 // Next will return true if the next column is found.
+// 如果下一列有值存在将返回 true。
 func (cols *Cols) Next() bool {
 	cols.curCol++
 	return cols.curCol <= cols.totalCols
 }
 
 // Error will return an error when the error occurs.
+// 当查找下一列出现错误时将返回 error。
 func (cols *Cols) Error() error {
 	return cols.err
 }
 
 // Rows return the current column's row values.
+// 返回当前列所有行的值。
 func (cols *Cols) Rows(opts ...Options) ([]string, error) {
 	var rowIterator rowXMLIterator
 	if cols.stashCol >= cols.curCol {
@@ -207,6 +213,8 @@ func (cols *Cols) rowXMLHandler(rowIterator *rowXMLIterator, xmlElement *xml.Sta
 //	    }
 //	    fmt.Println()
 //	}
+//
+// 根据给定的工作表名称获取该工作表的列迭代器。此功能是并发安全的。
 func (f *File) Cols(sheet string) (*Cols, error) {
 	if err := checkSheetName(sheet); err != nil {
 		return nil, err
@@ -252,6 +260,8 @@ func (f *File) Cols(sheet string) (*Cols, error) {
 // example, get visible state of column D in Sheet1:
 //
 //	visible, err := f.GetColVisible("Sheet1", "D")
+//
+// 根据给定的工作表名称和列名获取工作表中指定列的可见性，可见返回值为 true，否则为 false。此功能是并发安全的。
 func (f *File) GetColVisible(sheet, col string) (bool, error) {
 	colNum, err := ColumnNameToNumber(col)
 	if err != nil {
@@ -289,6 +299,8 @@ func (f *File) GetColVisible(sheet, col string) (bool, error) {
 // Hide the columns from D to F (included):
 //
 //	err := f.SetColVisible("Sheet1", "D:F", false)
+//
+// 根据给定的工作表名称和列名称设置列可见性。此功能是并发安全的。
 func (f *File) SetColVisible(sheet, columns string, visible bool) error {
 	min, max, err := f.parseColRange(columns)
 	if err != nil {
@@ -331,6 +343,8 @@ func (f *File) SetColVisible(sheet, columns string, visible bool) error {
 // level of column D in Sheet1:
 //
 //	level, err := f.GetColOutlineLevel("Sheet1", "D")
+//
+// 根据给定的工作表名称和列名称获取分组分级。
 func (f *File) GetColOutlineLevel(sheet, col string) (uint8, error) {
 	level := uint8(0)
 	colNum, err := ColumnNameToNumber(col)
@@ -377,6 +391,8 @@ func (f *File) parseColRange(columns string) (min, max int, err error) {
 // 'level' is 1-7. For example, set outline level of column D in Sheet1 to 2:
 //
 //	err := f.SetColOutlineLevel("Sheet1", "D", 2)
+//
+// 根据给定的工作表名称、列名称和分级参数创建组。
 func (f *File) SetColOutlineLevel(sheet, col string, level uint8) error {
 	if level > 7 || level < 1 {
 		return ErrOutlineLevel
@@ -483,6 +499,8 @@ func (f *File) SetColStyle(sheet, columns string, styleID int) error {
 // multiple columns. This function is concurrency safe. For example:
 //
 //	err := f.SetColWidth("Sheet1", "A", "H", 20)
+//
+// 根据给定的工作表名称、列范围和宽度值设置单个或多个列的宽度。此功能是并发安全的。
 func (f *File) SetColWidth(sheet, startCol, endCol string, width float64) error {
 	min, max, err := f.parseColRange(startCol + ":" + endCol)
 	if err != nil {
@@ -693,6 +711,7 @@ func (f *File) GetColStyle(sheet, col string) (int, error) {
 
 // GetColWidth provides a function to get column width by given worksheet name
 // and column name. This function is concurrency safe.
+// 根据给定的工作表和列名获取工作表中指定列的宽度。此功能是并发安全的。
 func (f *File) GetColWidth(sheet, col string) (float64, error) {
 	colNum, err := ColumnNameToNumber(col)
 	if err != nil {
@@ -735,6 +754,7 @@ func (f *File) GetColWidth(sheet, col string) (float64, error) {
 // as formulas, charts, and so on. If there is any referenced value of the
 // worksheet, it will cause a file error when you open it. The excelize only
 // partially updates these references currently.
+// 根据给定的工作表名称、行号和要插入的行数，在指定行前插入空白行。
 func (f *File) InsertCols(sheet, col string, n int) error {
 	num, err := ColumnNameToNumber(col)
 	if err != nil {
@@ -755,6 +775,7 @@ func (f *File) InsertCols(sheet, col string, n int) error {
 // as formulas, charts, and so on. If there is any referenced value of the
 // worksheet, it will cause a file error when you open it. The excelize only
 // partially updates these references currently.
+// 根据给定的工作表名称和列名称删除指定列。
 func (f *File) RemoveCol(sheet, col string) error {
 	num, err := ColumnNameToNumber(col)
 	if err != nil {

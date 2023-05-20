@@ -26,6 +26,8 @@ import (
 // For example:
 //
 //	f := NewFile()
+//
+// 使用 NewFile 新建 Excel 工作薄，新创建的工作簿中会默认包含一个名为 Sheet1 的工作表。
 func NewFile(opts ...Options) *File {
 	f := newFile()
 	f.Pkg.Store("_rels/.rels", []byte(xml.Header+templateRels))
@@ -54,6 +56,7 @@ func NewFile(opts ...Options) *File {
 }
 
 // Save provides a function to override the spreadsheet with origin path.
+// 使用 Save 保存对 Excel 文档的编辑。
 func (f *File) Save(opts ...Options) error {
 	if f.Path == "" {
 		return ErrSave
@@ -66,6 +69,7 @@ func (f *File) Save(opts ...Options) error {
 
 // SaveAs provides a function to create or update to a spreadsheet at the
 // provided path.
+// 使用 SaveAs 另存为 Excel 文档为指定文件。
 func (f *File) SaveAs(name string, opts ...Options) error {
 	if len(name) > MaxFilePathLength {
 		return ErrMaxFilePathLength

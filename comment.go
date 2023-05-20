@@ -22,6 +22,7 @@ import (
 )
 
 // GetComments retrieves all comments in a worksheet by given worksheet name.
+// 根据给定的工作表名称获取工作表中的所有单元格批注。
 func (f *File) GetComments(sheet string) ([]Comment, error) {
 	var comments []Comment
 	sheetXMLPath, ok := f.getSheetXMLPath(sheet)
@@ -92,6 +93,9 @@ func (f *File) getSheetComments(sheetFile string) string {
 //	        {Text: "This is a comment."},
 //	    },
 //	})
+//
+// 根据给定的工作表名称、单元格坐标和样式参数（作者与文本信息）添加批注。
+// 作者信息最大长度为 255 个字符，最大文本内容长度为 32512 个字符，超出该范围的字符将会被忽略。
 func (f *File) AddComment(sheet string, comment Comment) error {
 	// Read sheet data.
 	ws, err := f.workSheetReader(sheet)
@@ -142,6 +146,8 @@ func (f *File) AddComment(sheet string, comment Comment) error {
 // worksheet name. For example, delete the comment in Sheet1!$A$30:
 //
 //	err := f.DeleteComment("Sheet1", "A30")
+//
+// 根据给定的工作表名称、单元格坐标删除批注。
 func (f *File) DeleteComment(sheet, cell string) error {
 	if err := checkSheetName(sheet); err != nil {
 		return err

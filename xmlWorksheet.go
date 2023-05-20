@@ -963,16 +963,16 @@ type SheetProtectionOptions struct {
 
 // HeaderFooterOptions directly maps the settings of header and footer.
 type HeaderFooterOptions struct {
-	AlignWithMargins bool
-	DifferentFirst   bool
-	DifferentOddEven bool
-	ScaleWithDoc     bool
-	OddHeader        string
-	OddFooter        string
-	EvenHeader       string
-	EvenFooter       string
-	FirstHeader      string
-	FirstFooter      string
+	AlignWithMargins bool   //设定页眉页脚边距与页边距对齐
+	DifferentFirst   bool   //设定第一页页眉和页脚
+	DifferentOddEven bool   //设定奇数和偶数页页眉和页脚
+	ScaleWithDoc     bool   //设定页眉和页脚跟随文档缩放
+	OddHeader        string //奇数页页脚控制字符
+	OddFooter        string //奇数页页眉控制字符
+	EvenHeader       string //偶数页页脚控制字符
+	EvenFooter       string //偶数页页眉控制字符
+	FirstHeader      string //首页页脚控制字符
+	FirstFooter      string //首页页眉控制字符
 }
 
 // PageLayoutMarginsOptions directly maps the settings of page layout margins.

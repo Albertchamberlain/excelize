@@ -79,6 +79,8 @@ func parseTableOptions(opts *Table) (*Table, error) {
 //	TableStyleLight1 - TableStyleLight21
 //	TableStyleMedium1 - TableStyleMedium28
 //	TableStyleDark1 - TableStyleDark11
+//
+// 根据给定的工作表名、单元格坐标区域和条件格式创建表格。
 func (f *File) AddTable(sheet string, table *Table) error {
 	options, err := parseTableOptions(table)
 	if err != nil {

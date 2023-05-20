@@ -1625,6 +1625,7 @@ func setCellXfs(style *xlsxStyleSheet, fontID, numFmtID, fillID, borderID int, a
 
 // GetCellStyle provides a function to get cell style index by given worksheet
 // name and cell reference.
+// 根据给定的工作表名和单元格坐标获取单元格样式索引，获取到的索引可以在设置单元格样式时，作为调用 SetCellStyle 函数的参数使用。
 func (f *File) GetCellStyle(sheet, cell string) (int, error) {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1743,6 +1744,10 @@ func (f *File) GetCellStyle(sheet, cell string) (int, error) {
 //	    fmt.Println(err)
 //	}
 //	err = f.SetCellStyle("Sheet1", "H9", "H9", style)
+//
+// 根据给定的工作表名、单元格坐标区域和样式索引设置单元格的值。此功能是并发安全的。样式索引可以通过 NewStyle 函数获取。
+// 注意，在同一个坐标区域内的 diagonalDown 和 diagonalUp 需要保持颜色一致。\
+// SetCellStyle 将覆盖单元格的已有样式，而不会将样式与已有样式叠加或合并。
 func (f *File) SetCellStyle(sheet, hCell, vCell string, styleID int) error {
 	hCol, hRow, err := CellNameToCoordinates(hCell)
 	if err != nil {

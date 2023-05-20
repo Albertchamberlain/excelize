@@ -35,6 +35,7 @@ func (f *File) getSheetView(sheet string, viewIndex int) (*xlsxSheetView, error)
 }
 
 // setSheetView set sheet view by given options.
+
 func (view *xlsxSheetView) setSheetView(opts *ViewOptions) {
 	if opts.DefaultGridColor != nil {
 		view.DefaultGridColor = opts.DefaultGridColor
@@ -76,6 +77,8 @@ func (view *xlsxSheetView) setSheetView(opts *ViewOptions) {
 
 // SetSheetView sets sheet view options. The viewIndex may be negative and if
 // so is counted backward (-1 is the last view).
+//根据给定的工作表名称、视图索引和视图参数设置工作表视图属性
+//viewIndex 可以是负数，如果是这样，则向后计数（-1 代表最后一个视图）。支持设置的工作表视图属性选项：
 func (f *File) SetSheetView(sheet string, viewIndex int, opts *ViewOptions) error {
 	view, err := f.getSheetView(sheet, viewIndex)
 	if err != nil {
@@ -90,6 +93,7 @@ func (f *File) SetSheetView(sheet string, viewIndex int, opts *ViewOptions) erro
 
 // GetSheetView gets the value of sheet view options. The viewIndex may be
 // negative and if so is counted backward (-1 is the last view).
+//根据给定的工作表名称和视图索引获取工作表视图属性，viewIndex 可以是负数，如果是这样，则向后计数（-1 代表最后一个视图）。
 func (f *File) GetSheetView(sheet string, viewIndex int) (ViewOptions, error) {
 	opts := ViewOptions{
 		DefaultGridColor:  boolPtr(true),

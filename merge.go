@@ -49,6 +49,7 @@ func (mc *xlsxMergeCell) Rect() ([]int, error) {
 //	|                        |
 //	|A8(x3,y4)      C8(x4,y4)|
 //	+------------------------+
+//根据给定的工作表名和单元格坐标区域合并单元格。合并区域内仅保留左上角单元格的值，其他单元格的值将被忽略。
 func (f *File) MergeCell(sheet, hCell, vCell string) error {
 	rect, err := rangeRefToCoordinates(hCell + ":" + vCell)
 	if err != nil {
@@ -82,6 +83,7 @@ func (f *File) MergeCell(sheet, hCell, vCell string) error {
 //	err := f.UnmergeCell("Sheet1", "D3", "E9")
 //
 // Attention: overlapped range will also be unmerged.
+//根据给定的工作表名和单元格坐标区域取消合并单元格。
 func (f *File) UnmergeCell(sheet, hCell, vCell string) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -130,6 +132,7 @@ func (f *File) UnmergeCell(sheet, hCell, vCell string) error {
 
 // GetMergeCells provides a function to get all merged cells from a worksheet
 // currently.
+//根据给定的工作表名获取全部合并单元格的坐标区域和值。
 func (f *File) GetMergeCells(sheet string) ([]MergeCell, error) {
 	var mergeCells []MergeCell
 	ws, err := f.workSheetReader(sheet)
@@ -276,18 +279,21 @@ func mergeCell(cell1, cell2 *xlsxMergeCell) *xlsxMergeCell {
 type MergeCell []string
 
 // GetCellValue returns merged cell value.
+//GetCellValue 返回合并单元格的值。
 func (m *MergeCell) GetCellValue() string {
 	return (*m)[1]
 }
 
 // GetStartAxis returns the top left cell reference of merged range, for
 // example: "C2".
+//GetStartAxis 返回合并单元格区域左上角单元格的坐标
 func (m *MergeCell) GetStartAxis() string {
 	return strings.Split((*m)[0], ":")[0]
 }
 
 // GetEndAxis returns the bottom right cell reference of merged range, for
 // example: "D4".
+//GetEndAxis 返回合并单元格区域右下角单元格的坐标
 func (m *MergeCell) GetEndAxis() string {
 	return strings.Split((*m)[0], ":")[1]
 }

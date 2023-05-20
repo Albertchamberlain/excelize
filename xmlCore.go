@@ -15,20 +15,20 @@ import "encoding/xml"
 
 // DocProperties directly maps the document core properties.
 type DocProperties struct {
-	Category       string
-	ContentStatus  string
-	Created        string
-	Creator        string
-	Description    string
-	Identifier     string
-	Keywords       string
-	LastModifiedBy string
-	Modified       string
-	Revision       string
-	Subject        string
-	Title          string
-	Language       string
-	Version        string
+	Category       string //文档内容的分类
+	ContentStatus  string //文档内容的状态。例如: 值可能包括 "Draft"、"Reviewed" 和 "Final"
+	Created        string //使用 ISO 8601 UTC 时间格式表示的文档创建时间，例如 2019-06-04T22:00:10Z
+	Creator        string //创作者
+	Description    string //资源内容的说明
+	Identifier     string //对给定上下文中的资源的明确引用
+	Keywords       string //文档关键词
+	LastModifiedBy string //执行上次修改的用户
+	Modified       string //使用 ISO 8601 UTC 时间格式表示的文档修改时间，例如 2019-06-04T22:00:10Z
+	Revision       string //文档修订版本
+	Subject        string //文档主题
+	Title          string //文档标题
+	Language       string //文档内容的主要语言
+	Version        string //版本号，该值由用户或应用程序设置
 }
 
 // decodeDcTerms directly maps the DCMI metadata terms for the coreProperties.

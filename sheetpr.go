@@ -14,6 +14,7 @@ package excelize
 import "reflect"
 
 // SetPageMargins provides a function to set worksheet page margins.
+//根据给定的工作表名称和页边距参数设置工作表的页边距。
 func (f *File) SetPageMargins(sheet string, opts *PageLayoutMarginsOptions) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -52,6 +53,7 @@ func (f *File) SetPageMargins(sheet string, opts *PageLayoutMarginsOptions) erro
 }
 
 // GetPageMargins provides a function to get worksheet page margins.
+//根据给定的工作表名称和页边距参数获取工作表的页边距。
 func (f *File) GetPageMargins(sheet string) (PageLayoutMarginsOptions, error) {
 	opts := PageLayoutMarginsOptions{
 		Bottom: float64Ptr(0.75),

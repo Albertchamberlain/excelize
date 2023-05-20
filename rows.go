@@ -45,6 +45,10 @@ import (
 //	    }
 //	    fmt.Println()
 //	}
+//
+// 根据给定的工作表名按行获取该工作表上全部单元格的值，以二维数组形式返回，其中单元格的值将转换为 string 类型。
+// 如果可以将单元格格式应用于单元格的值，将使用应用后的值，否则将使用原始值。
+// GetRows 获取带有值或公式单元格的行，行尾连续为空的单元格将被跳过，每行中的单元格数目可能不同。
 func (f *File) GetRows(sheet string, opts ...Options) ([][]string, error) {
 	rows, err := f.Rows(sheet)
 	if err != nil {
@@ -80,6 +84,7 @@ type Rows struct {
 }
 
 // Next will return true if find the next row element.
+// 如果下一行有值存在将返回 true。
 func (rows *Rows) Next() bool {
 	rows.seekRow++
 	if rows.curRow >= rows.seekRow {
@@ -111,17 +116,20 @@ func (rows *Rows) Next() bool {
 }
 
 // GetRowOpts will return the RowOpts of the current row.
+// 返回当前行的行高、可见性和样式 ID 属性。
 func (rows *Rows) GetRowOpts() RowOpts {
 	return rows.curRowOpts
 }
 
 // Error will return the error when the error occurs.
+// 当查找下一行出现错误时将返回 error。
 func (rows *Rows) Error() error {
 	return rows.err
 }
 
 // Close closes the open worksheet XML file in the system temporary
 // directory.
+// 关闭数据流并清理打开工作表时可能产生的系统磁盘缓存。
 func (rows *Rows) Close() error {
 	if rows.tempFile != nil {
 		return rows.tempFile.Close()
@@ -132,6 +140,7 @@ func (rows *Rows) Close() error {
 // Columns return the current row's column values. This fetches the worksheet
 // data as a stream, returns each cell in a row as is, and will not skip empty
 // rows in the tail of the worksheet.
+// 此函数流式逐行读取工作表，返回当前行中各列单元格的值，不会跳过工作表尾部的有效空白行。
 func (rows *Rows) Columns(opts ...Options) ([]string, error) {
 	if rows.curRow > rows.seekRow {
 		return nil, nil
@@ -259,6 +268,8 @@ func (rows *Rows) rowXMLHandler(rowIterator *rowXMLIterator, xmlElement *xml.Sta
 //	if err = rows.Close(); err != nil {
 //	    fmt.Println(err)
 //	}
+//
+// 根据给定的工作表名称获取该工作表的行迭代器。此功能是并发安全的。
 func (f *File) Rows(sheet string) (*Rows, error) {
 	if err := checkSheetName(sheet); err != nil {
 		return nil, err
@@ -348,6 +359,8 @@ func (f *File) xmlDecoder(name string) (bool, *xml.Decoder, *os.File, error) {
 // example, set the height of the first row in Sheet1:
 //
 //	err := f.SetRowHeight("Sheet1", 1, 50)
+//
+// 根据给定的工作表名称、行号和高度值设置单行高度。
 func (f *File) SetRowHeight(sheet string, row int, height float64) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)
@@ -391,6 +404,8 @@ func (f *File) getRowHeight(sheet string, row int) int {
 // and row number. For example, get the height of the first row in Sheet1:
 //
 //	height, err := f.GetRowHeight("Sheet1", 1)
+//
+// 根据给定的工作表名称和行号获取工作表中指定行的高度。
 func (f *File) GetRowHeight(sheet string, row int) (float64, error) {
 	if row < 1 {
 		return defaultRowHeight, newInvalidRowNumberError(row)
@@ -464,6 +479,8 @@ func (f *File) sharedStringsReader() (*xlsxSST, error) {
 // worksheet name and Excel row number. For example, hide row 2 in Sheet1:
 //
 //	err := f.SetRowVisible("Sheet1", 2, false)
+//
+// 根据给定的工作表名称和行号设置行可见性
 func (f *File) SetRowVisible(sheet string, row int, visible bool) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)
@@ -483,6 +500,8 @@ func (f *File) SetRowVisible(sheet string, row int, visible bool) error {
 // 2 in Sheet1:
 //
 //	visible, err := f.GetRowVisible("Sheet1", 2)
+//
+// 根据给定的工作表名称和行号获取工作表中指定行的可见性。
 func (f *File) GetRowVisible(sheet string, row int) (bool, error) {
 	if row < 1 {
 		return false, newInvalidRowNumberError(row)
@@ -503,6 +522,8 @@ func (f *File) GetRowVisible(sheet string, row int) (bool, error) {
 // parameter 'level' is 1-7. For example, outline row 2 in Sheet1 to level 1:
 //
 //	err := f.SetRowOutlineLevel("Sheet1", 2, 1)
+//
+// 根据给定的工作表名称、行号和分级参数创建组。
 func (f *File) SetRowOutlineLevel(sheet string, row int, level uint8) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)
@@ -524,6 +545,8 @@ func (f *File) SetRowOutlineLevel(sheet string, row int, level uint8) error {
 // outline number of row 2 in Sheet1:
 //
 //	level, err := f.GetRowOutlineLevel("Sheet1", 2)
+//
+// 根据给定的工作表名称和行号获取分组级别。
 func (f *File) GetRowOutlineLevel(sheet string, row int) (uint8, error) {
 	if row < 1 {
 		return 0, newInvalidRowNumberError(row)
@@ -547,6 +570,7 @@ func (f *File) GetRowOutlineLevel(sheet string, row int) (uint8, error) {
 // as formulas, charts, and so on. If there is any referenced value of the
 // worksheet, it will cause a file error when you open it. The excelize only
 // partially updates these references currently.
+// 根据给定的工作表名称和行号删除指定行。
 func (f *File) RemoveRow(sheet string, row int) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)
@@ -602,6 +626,7 @@ func (f *File) InsertRows(sheet string, row, n int) error {
 // as formulas, charts, and so on. If there is any referenced value of the
 // worksheet, it will cause a file error when you open it. The excelize only
 // partially updates these references currently.
+// 根据给定的工作表名称和行号，在该行后追加复制。
 func (f *File) DuplicateRow(sheet string, row int) error {
 	return f.DuplicateRowTo(sheet, row, row+1)
 }
@@ -615,6 +640,7 @@ func (f *File) DuplicateRow(sheet string, row int) error {
 // as formulas, charts, and so on. If there is any referenced value of the
 // worksheet, it will cause a file error when you open it. The excelize only
 // partially updates these references currently.
+// 根据给定的工作表名称和行号，在指定行后复制该行。
 func (f *File) DuplicateRowTo(sheet string, row, row2 int) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)

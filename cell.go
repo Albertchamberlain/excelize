@@ -66,6 +66,8 @@ var cellTypes = map[string]CellType{
 // the cell format can be applied to the value of a cell, the applied value
 // will be returned, otherwise the original value will be returned. All cells'
 // values will be the same in a merged range.
+// 根据给定的工作表和单元格坐标获取单元格的值，返回值将转换为 string 类型。
+// 如果可以将单元格格式应用于单元格的值，将返回应用后的值，否则将返回原始值。合并区域内所有单元格的值都相同。此功能是并发安全的。
 func (f *File) GetCellValue(sheet, cell string, opts ...Options) (string, error) {
 	return f.getCellStringFunc(sheet, cell, func(x *xlsxWorksheet, c *xlsxC) (string, bool, error) {
 		sst, err := f.sharedStringsReader()
@@ -79,6 +81,7 @@ func (f *File) GetCellValue(sheet, cell string, opts ...Options) (string, error)
 
 // GetCellType provides a function to get the cell's data type by given
 // worksheet name and cell reference in spreadsheet file.
+// 根据给定的工作表、单元格坐标获取指定单元格的数据类型。
 func (f *File) GetCellType(sheet, cell string) (CellType, error) {
 	var (
 		err         error
@@ -124,6 +127,7 @@ func (f *File) GetCellType(sheet, cell string) (CellType, error) {
 // times can not representation in Go language time.Time data type. Please set
 // the cell value as number 0 or 60, then create and bind the date-time number
 // format style for the cell.
+// 根据给定的工作表名和单元格坐标设置单元格的值。此功能是并发安全的。指定的坐标不应在表格的第一行范围，使用字符文本设置复数。
 func (f *File) SetCellValue(sheet, cell string, value interface{}) error {
 	var err error
 	switch v := value.(type) {
@@ -287,6 +291,7 @@ func setCellDuration(value time.Duration) (t string, v string) {
 
 // SetCellInt provides a function to set int type value of a cell by given
 // worksheet name, cell reference and cell value.
+// 根据给定的工作表名和单元格坐标设置整数型单元格的值。
 func (f *File) SetCellInt(sheet, cell string, value int) error {
 	f.mu.Lock()
 	ws, err := f.workSheetReader(sheet)
@@ -316,6 +321,7 @@ func setCellInt(value int) (t string, v string) {
 
 // SetCellBool provides a function to set bool type value of a cell by given
 // worksheet name, cell reference and cell value.
+// 根据给定的工作表名和单元格坐标设置布尔型单元格的值。
 func (f *File) SetCellBool(sheet, cell string, value bool) error {
 	f.mu.Lock()
 	ws, err := f.workSheetReader(sheet)
@@ -356,6 +362,8 @@ func setCellBool(value bool) (t string, v string) {
 //
 //	var x float32 = 1.325
 //	f.SetCellFloat("Sheet1", "A1", float64(x), 2, 32)
+//
+// 根据给定的工作表名、单元格坐标、浮点数、浮点数尾数部分精度和浮点数类型设置浮点型单元格的值。
 func (f *File) SetCellFloat(sheet, cell string, value float64, precision, bitSize int) error {
 	f.mu.Lock()
 	ws, err := f.workSheetReader(sheet)
@@ -385,6 +393,7 @@ func setCellFloat(value float64, precision, bitSize int) (t string, v string) {
 
 // SetCellStr provides a function to set string type value of a cell. Total
 // number of characters that a cell can contain 32767 characters.
+// 根据给定的工作表名和单元格坐标设置字符型单元格的值，字符将会进行特殊字符过滤，并且字符串的累计长度应不超过 32767，多余的字符将会被忽略。
 func (f *File) SetCellStr(sheet, cell, value string) error {
 	f.mu.Lock()
 	ws, err := f.workSheetReader(sheet)
@@ -535,6 +544,7 @@ func (c *xlsxC) getCellBool(f *File, raw bool) (string, error) {
 
 // setCellDefault prepares cell type and string type cell value by a given
 // string.
+// 根据给定的工作表名和单元格坐标设置字符型单元格的值，字符将不会进行特殊字符过滤。
 func (c *xlsxC) setCellDefault(value string) {
 	if ok, _, _ := isNumeric(value); !ok {
 		if value != "" {
@@ -630,6 +640,7 @@ func (f *File) SetCellDefault(sheet, cell, value string) error {
 
 // GetCellFormula provides a function to get formula from cell by given
 // worksheet name and cell reference in spreadsheet.
+// 根据给定的工作表名和单元格坐标获取该单元格上的公式。
 func (f *File) GetCellFormula(sheet, cell string) (string, error) {
 	return f.getCellStringFunc(sheet, cell, func(x *xlsxWorksheet, c *xlsxC) (string, bool, error) {
 		if c.F == nil {
@@ -730,6 +741,9 @@ type FormulaOpts struct {
 //	        fmt.Println(err)
 //	    }
 //	}
+//
+// 根据给定的工作表名和单元格坐标设置该单元格上的公式。公式的结果可在工作表被 Office Excel 应用程序打开时计算，或通过 CalcCellValue 函数计算单元格的值。
+// 若 Excel 应用程序打开工作簿后未对设置的单元格公式进行计算，请在设置公式后调用 UpdateLinkedValue 清除单元格缓存。
 func (f *File) SetCellFormula(sheet, cell, formula string, opts ...FormulaOpts) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -812,6 +826,8 @@ func (ws *xlsxWorksheet) countSharedFormula() (count int) {
 // For example, get a hyperlink to a 'H6' cell on a worksheet named 'Sheet1':
 //
 //	link, target, err := f.GetCellHyperLink("Sheet1", "H6")
+//
+// 根据给定的工作表名和单元格坐标获取单元格超链接，如果该单元格存在超链接，将返回 true 和链接地址，否则将返回 false 和空的链接地址。
 func (f *File) GetCellHyperLink(sheet, cell string) (bool, string, error) {
 	// Check for correct cell name
 	if _, _, err := SplitCellName(cell); err != nil {
@@ -874,6 +890,10 @@ type HyperlinkOpts struct {
 // This is another example for "Location":
 //
 //	err := f.SetCellHyperLink("Sheet1", "A3", "Sheet1!A40", "Location")
+//
+// 根据给定的工作表、单元格坐标、链接资源和资源类型设置单元格的超链接。资源类型分为外部链接地址 External 和工作簿内部位置链接 Location 两种。
+// 每个工作表中的包含最大超链接限制为 65530 个。
+// 该方法仅设置单元格的超链接而不影响单元格的值，若需设置单元格的值，请通过 SetCellStyle 或 SetSheetRow 等函数另行设置。
 func (f *File) SetCellHyperLink(sheet, cell, link, linkType string, opts ...HyperlinkOpts) error {
 	// Check for correct cell name
 	if _, _, err := SplitCellName(cell); err != nil {
@@ -941,6 +961,7 @@ func (f *File) SetCellHyperLink(sheet, cell, link, linkType string, opts ...Hype
 }
 
 // getCellRichText returns rich text of cell by given string item.
+// 根据给定的工作表、单元格坐标获取指定单元格的富文本格式。
 func getCellRichText(si *xlsxSI) (runs []RichTextRun) {
 	for _, v := range si.R {
 		run := RichTextRun{
@@ -1183,6 +1204,8 @@ func setRichText(runs []RichTextRun) ([]xlsxR, error) {
 //	        fmt.Println(err)
 //	    }
 //	}
+//
+// 根据给定的工作表、单元格坐标和富文本格式为指定单元格设置富文本。
 func (f *File) SetCellRichText(sheet, cell string, runs []RichTextRun) error {
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -1223,6 +1246,8 @@ func (f *File) SetCellRichText(sheet, cell string, runs []RichTextRun) error {
 // B6 on Sheet1:
 //
 //	err := f.SetSheetRow("Sheet1", "B6", &[]interface{}{"1", nil, 2})
+//
+// 根据给定的工作表名称、起始坐标和 slice 类型引用按行赋值。此功能是并发安全的。
 func (f *File) SetSheetRow(sheet, cell string, slice interface{}) error {
 	return f.setSheetCells(sheet, cell, slice, rows)
 }
@@ -1232,6 +1257,8 @@ func (f *File) SetSheetRow(sheet, cell string, slice interface{}) error {
 // array to column B start with the cell B6 on Sheet1:
 //
 //	err := f.SetSheetCol("Sheet1", "B6", &[]interface{}{"1", nil, 2})
+//
+// 根据给定的工作表名称、起始坐标和 slice 类型引用按列赋值。
 func (f *File) SetSheetCol(sheet, cell string, slice interface{}) error {
 	return f.setSheetCells(sheet, cell, slice, columns)
 }

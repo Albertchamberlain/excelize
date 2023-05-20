@@ -21,6 +21,7 @@ import (
 )
 
 // SetWorkbookProps provides a function to sets workbook properties.
+// SetWorkbookProps 用于设置工作簿属性
 func (f *File) SetWorkbookProps(opts *WorkbookPropsOptions) error {
 	wb, err := f.workbookReader()
 	if err != nil {
@@ -45,6 +46,7 @@ func (f *File) SetWorkbookProps(opts *WorkbookPropsOptions) error {
 }
 
 // GetWorkbookProps provides a function to gets workbook properties.
+// GetWorkbookProps 用于获取工作簿属性
 func (f *File) GetWorkbookProps() (WorkbookPropsOptions, error) {
 	var opts WorkbookPropsOptions
 	wb, err := f.workbookReader()
@@ -71,6 +73,9 @@ func (f *File) GetWorkbookProps() (WorkbookPropsOptions, error) {
 //	    Password:      "password",
 //	    LockStructure: true,
 //	})
+//
+// 使用密码保护工作簿的结构，以防止其他用户查看隐藏的工作表，添加、移动或隐藏工作表以及重命名工作表。
+// 字段 AlgorithmName 支持指定哈希算法 XOR、MD4、MD5、SHA-1、SHA-256、SHA-384 或 SHA-512，如果未指定哈希算法，默认使用 XOR 算法。
 func (f *File) ProtectWorkbook(opts *WorkbookProtectionOptions) error {
 	wb, err := f.workbookReader()
 	if err != nil {
@@ -105,6 +110,7 @@ func (f *File) ProtectWorkbook(opts *WorkbookProtectionOptions) error {
 // UnprotectWorkbook provides a function to remove protection for workbook,
 // specified the optional password parameter to remove workbook protection with
 // password verification.
+// 取保护工作簿，指定可选密码参数以通过密码验证来取消工作簿保护。
 func (f *File) UnprotectWorkbook(password ...string) error {
 	wb, err := f.workbookReader()
 	if err != nil {
@@ -143,6 +149,7 @@ func (f *File) setWorkbook(name string, sheetID, rid int) {
 
 // getWorkbookPath provides a function to get the path of the workbook.xml in
 // the spreadsheet.
+// 获取book地址
 func (f *File) getWorkbookPath() (path string) {
 	if rels, _ := f.relsReader("_rels/.rels"); rels != nil {
 		rels.mu.Lock()
@@ -159,6 +166,7 @@ func (f *File) getWorkbookPath() (path string) {
 
 // getWorkbookRelsPath provides a function to get the path of the workbook.xml.rels
 // in the spreadsheet.
+// 获取book相对地址
 func (f *File) getWorkbookRelsPath() (path string) {
 	wbPath := f.getWorkbookPath()
 	wbDir := filepath.Dir(wbPath)

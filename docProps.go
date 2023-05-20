@@ -98,6 +98,7 @@ func (f *File) SetAppProps(appProperties *AppProperties) error {
 }
 
 // GetAppProps provides a function to get document application properties.
+// 获取工作簿的应用程序属性
 func (f *File) GetAppProps() (ret *AppProperties, err error) {
 	app := new(xlsxProperties)
 	if err = f.xmlNewDecoder(bytes.NewReader(namespaceStrictToTransitional(f.readXML(defaultXMLPathDocPropsApp)))).
@@ -179,6 +180,8 @@ func (f *File) GetAppProps() (ret *AppProperties, err error) {
 //	    Language:       "en-US",
 //	    Version:        "1.0.0",
 //	})
+//
+// 设置工作簿的核心属性
 func (f *File) SetDocProps(docProperties *DocProperties) error {
 	var (
 		core               *decodeCoreProperties
@@ -242,6 +245,7 @@ func (f *File) SetDocProps(docProperties *DocProperties) error {
 }
 
 // GetDocProps provides a function to get document core properties.
+// 获取工作簿的核心属性
 func (f *File) GetDocProps() (ret *DocProperties, err error) {
 	core := new(decodeCoreProperties)
 

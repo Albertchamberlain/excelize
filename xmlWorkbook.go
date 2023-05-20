@@ -333,8 +333,9 @@ type WorkbookPropsOptions struct {
 }
 
 // WorkbookProtectionOptions directly maps the settings of workbook protection.
+// WorkbookProtectionOptions 定义了保护工作簿的设置选项。
 type WorkbookProtectionOptions struct {
-	AlgorithmName string
+	AlgorithmName string //AlgorithmName 支持指定哈希算法 XOR、MD4、MD5、SHA-1、SHA-256、SHA-384 或 SHA-512，如果未指定哈希算法，默认使用 XOR 算法。
 	Password      string
 	LockStructure bool
 	LockWindows   bool
